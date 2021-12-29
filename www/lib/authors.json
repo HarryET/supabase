@@ -97,5 +97,12 @@
     "position": "Engineering",
     "username": "olirice",
     "author_image_url": "https://github.com/olirice.png"
+  },
+  "harryet": {
+    "author": "Harry Bairstow",
+    "author_url": "https://github.com/harryet",
+    "position": "Contributor",
+    "username": "harryet",
+    "author_image_url": "https://github.com/harryet.png"
   }
 }

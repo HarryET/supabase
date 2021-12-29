@@ -1,0 +1,90 @@
+---
+title: 'Adding OAuth Providers'
+description: How to add new OAuth providers to Supabase Auth.
+author: harryet
+author_url: https://github.com/harryet
+author_image_url: https://github.com/harryet.png
+authorURL: https://github.com/harryet
+# Need to get some images!!
+image: adding-oauth-providers/supabase-oss.jpg
+thumb: adding-oauth-providers/supabase-oss.jpg
+tags:
+  - gotrue
+date: '2021-12-29'
+toc_depth: 3
+---
+
+Supabase auth is powered by a fork [GoTrue](https://github.com/netlify/gotrue), the Supabase fork adds many extra providers. Thinking about another provider that Supabase should support? Well not to worry; this blog post will explain how to go about that!
+
+## Picking a provider
+
+If you want to contribute but haven't got a spcific provider in mind you should consider the following points:
+
+1. Can you get a unique identifier? e.g. email, phone or account id
+2. Does the service you want to add support the [OAuth 2.0](https://datatracker.ietf.org/doc/html/rfc6749) specification?
+3. Is their good documentation and can others check if your implementation is correct?
+
+If you can answer yes to all of those questions then your provider should be sutible for GoTrue. Maybe the provider your thinking of dosen't meet all of those requirements or you still can think of one you could have a look at providers the community have requested through [Twitter](https://twiter.com/supabase) or as an [Issue](https://github.com/supabase/gotrue/issues?q=is%3Aissue+is%3Aopen+provider) on the GoTrue repository.
+
+## Contributing to GoTrue
+
+### Getting the code
+
+To contribute to GoTrue you need to fork the [repository](https://github.com/supabase/gotrue), so that you can commit changes. Once you have your fork, clone that insted of the main repository as shown below
+
+```shell
+git clone https://github.com/[your_username]/gotrue.git
+```
+
+Now that you the code locally you can open it in your favourite editor e.g. vscode or goland
+
+### Installing tools
+- Install [Go](https://go.dev) 1.16
+
+```shell
+# Via Homebrew on OSX
+brew install go@1.16
+
+# Set the GOPATH environment variable in the ~/.zshrc file
+export GOPATH="$HOME/go"
+
+# Add the GOPATH to your path
+echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.zshrc
+```
+
+- Install [Docker](https://www.docker.com/get-started)
+
+```shell
+# Via Homebrew on OSX
+brew install docker
+```
+
+Or, if you prefer, download [Docker Desktop](https://www.docker.com/get-started).
+
+- Install [Soda CLI](https://gobuffalo.io/en/docs/db/toolbox)
+
+```shell
+go install github.com/gobuffalo/pop/soda@latest
+```
+
+
+### Setting up the database
+
+You now need to get a postgresql database setup so that you can run GoTrue locally, there is a `.sh` file that runs the database using docker. If you don't have docker yet installed you can follow their [guide](https://www.docker.com/get-started).
+
+Once you have Docker installed you can either run the `hack/postgresd.sh` file or the docker run command below on its own
+
+```shell
+docker rm -f gotrue_postgresql >/dev/null 2>/dev/null || true
+
+docker volume inspect postgres_data 2>/dev/null >/dev/null || docker volume create --name postgres_data >/dev/null
+
+docker run --name gotrue_postgresql \
+	-p 5432:5432 \
+    -e POSTGRES_USER=postgres \
+	-e POSTGRES_PASSWORD=root \
+	-e POSTGRES_DB=postgres \
+	--volume postgres_data:/var/lib/postgresql/data \
+	--volume "$(pwd)"/hack/init_postgres.sql:/docker-entrypoint-initdb.d/init.sql \
+	-d postgres:13
+```
